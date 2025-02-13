@@ -3,11 +3,18 @@ interface StoredMessage {
   content: string;
 }
 
+interface StoredMemory {
+  type: string;
+  content: string;
+  timestamp: string;
+}
+
 interface StoredChat {
   id: string;
   title: string;
   timestamp: string;
   messages: StoredMessage[];
+  memories: StoredMemory[];
 }
 
 // In-memory storage
@@ -32,6 +39,19 @@ class ChatStorage {
       chat.messages = messages;
       this.chats.set(id, chat);
     }
+  }
+
+  updateChatMemories(id: string, memories: StoredMemory[]) {
+    const chat = this.chats.get(id);
+    if (chat) {
+      chat.memories = chat.memories || [];
+      chat.memories = [...chat.memories, ...memories];
+      this.chats.set(id, chat);
+    }
+  }
+
+  getChatMemories(id: string): StoredMemory[] {
+    return this.chats.get(id)?.memories || [];
   }
 }
 

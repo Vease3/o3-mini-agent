@@ -240,7 +240,11 @@ export default function Home() {
         </footer>
       </div>
 
-      <RightSideDrawer isOpen={rightOpen} onClose={() => setRightOpen(false)} />
+      <RightSideDrawer 
+        isOpen={rightOpen} 
+        onClose={() => setRightOpen(false)} 
+        chatId={currentChatId || undefined} 
+      />
     </div>
   );
 }

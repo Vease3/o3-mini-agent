@@ -1,11 +1,49 @@
 import { Brain, PanelRightClose } from "lucide-react";
+import { useEffect, useState } from 'react';
 
 interface RightSideDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  chatId?: string;
 }
 
-export function RightSideDrawer({ isOpen, onClose }: RightSideDrawerProps) {
+interface Memory {
+  type: string;
+  content: string;
+  timestamp: string;
+}
+
+export function RightSideDrawer({ isOpen, onClose, chatId }: RightSideDrawerProps) {
+  const [memories, setMemories] = useState<Memory[]>([]);
+  const [error, setError] = useState<string>('');
+
+  useEffect(() => {
+    if (!chatId) {
+      setMemories([]);
+      return;
+    }
+
+    fetch(`/api/chat?id=${chatId}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch memories');
+        return res.json();
+      })
+      .then(data => {
+        if (data.chat?.memories) {
+          setMemories(data.chat.memories);
+          setError('');
+        } else {
+          setMemories([]);
+          setError('No memories found');
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch memories:', err);
+        setError('Failed to load memories');
+        setMemories([]);
+      });
+  }, [chatId]);
+
   return (
     <div className={`${isOpen ? 'w-80' : 'w-0'} transition-all duration-300 border-l border-gray-100 bg-gray-50 overflow-hidden`}>
       <div className="h-full flex flex-col">
@@ -25,20 +63,20 @@ export function RightSideDrawer({ isOpen, onClose }: RightSideDrawerProps) {
         </div>
         
         <div className="p-4 overflow-auto">
-          <div className="space-y-3">
-            <div className="bg-white rounded-md p-3 border border-gray-200">
-              <div className="text-xs text-gray-500 mb-1">Location Preference</div>
-              <p className="text-sm text-gray-700">User prefers warm coastal destinations</p>
+          {error ? (
+            <div className="text-sm text-gray-500 text-center">{error}</div>
+          ) : memories.length === 0 ? (
+            <div className="text-sm text-gray-500 text-center">No memories yet</div>
+          ) : (
+            <div className="space-y-3">
+              {memories.map((memory, index) => (
+                <div key={index} className="bg-white rounded-md p-3 border border-gray-200">
+                  <div className="text-xs text-gray-500 mb-1 capitalize">{memory.type}</div>
+                  <p className="text-sm text-gray-700">{memory.content}</p>
+                </div>
+              ))}
             </div>
-            <div className="bg-white rounded-md p-3 border border-gray-200">
-              <div className="text-xs text-gray-500 mb-1">Travel Style</div>
-              <p className="text-sm text-gray-700">Interested in cultural experiences and local cuisine</p>
-            </div>
-            <div className="bg-white rounded-md p-3 border border-gray-200">
-              <div className="text-xs text-gray-500 mb-1">Budget Range</div>
-              <p className="text-sm text-gray-700">Mid-range accommodations preferred</p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
