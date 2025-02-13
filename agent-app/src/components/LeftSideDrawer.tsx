@@ -1,11 +1,20 @@
 import { Globe, PanelLeftClose, Search, History, MapPin, Calendar } from "lucide-react";
 
+interface Chat {
+  id: string;
+  title: string;
+  timestamp: string;
+}
+
 interface LeftSideDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  chats?: Chat[];
+  onNewChat?: () => void;
+  onSelectChat?: (chatId: string) => void;
 }
 
-export function LeftSideDrawer({ isOpen, onClose }: LeftSideDrawerProps) {
+export function LeftSideDrawer({ isOpen, onClose, chats = [], onNewChat, onSelectChat }: LeftSideDrawerProps) {
   return (
     <div className={`${isOpen ? 'w-80' : 'w-0'} transition-all duration-300 border-r border-gray-100 bg-gray-50 overflow-hidden`}>
       <div className="h-full flex flex-col">
@@ -25,11 +34,26 @@ export function LeftSideDrawer({ isOpen, onClose }: LeftSideDrawerProps) {
         </div>
         
         <div className="p-4">
+          <button
+            onClick={onNewChat}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 mb-4 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+          >
+            <Search className="h-4 w-4" />
+            <span>New Chat</span>
+          </button>
+
           <div className="space-y-1">
-            <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-white rounded-md transition-colors">
-              <History className="h-4 w-4 text-gray-400" />
-              <span>Past Chats</span>
-            </button>
+            {chats.map((chat) => (
+              <button
+                key={chat.id}
+                onClick={() => onSelectChat?.(chat.id)}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-white rounded-md transition-colors"
+              >
+                <History className="h-4 w-4 text-gray-400" />
+                <div className="flex-1 text-left truncate">{chat.title}</div>
+                <span className="text-xs text-gray-400">{chat.timestamp}</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
