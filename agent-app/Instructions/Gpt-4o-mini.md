@@ -50,3 +50,4 @@ const completion = await openai.chat.completions.create({
 
 console.log(completion.choices[0].message);
 Execute the code with node example.mjs (or the equivalent command for Deno or Bun). In a few moments, you should see the output of your API request!
+
